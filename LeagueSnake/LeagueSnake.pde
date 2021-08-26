@@ -62,6 +62,7 @@ void draw() {
   drawFood();
   move();
   drawSnake();
+  eat();
   
 }
 
@@ -74,8 +75,9 @@ void drawFood() {
 void drawSnake() {
   //Draw the head of the snake followed by its tail
   fill(0,255,0);
-  rect(headX, headY, 10,10);
-  drawTail();
+  rect(head.x, head.y, 10,10);
+  manageTail();
+  
 }
 
 
@@ -93,14 +95,25 @@ for(Segment s:tail){
 }
 
 void manageTail() {
+  checkTailCollision();
+  drawTail();
   //After drawing the tail, add a new segment at the "start" of the tail and remove the one at the "end" 
   //This produces the illusion of the snake tail moving.
-  checkTailCollision();
+  Segment seg = new Segment(head.x, head.y);
+  tail.add(seg);
+  tail.remove(0);
 }
 
 void checkTailCollision() {
   //If the snake crosses its own tail, shrink the tail back to one segment
-  
+  for(Segment s:tail){
+    if(s.x == head.x && s.y == head.y){
+     tail = new ArrayList<Segment>();
+     eaten = 1;
+     tail.add( new Segment(head.x, head.y));
+     return;
+    }
+  }
 }
 
 
@@ -133,42 +146,34 @@ void move() {
   
   switch(direction) {
   case UP:
-    headY -=10;
-     checkBoundaries(); 
-     eat();
+    head.y -=10;
     break;
   case DOWN:
-headY +=10;
- checkBoundaries();
- eat();
+head.y +=10;
     break;
   case LEFT:
-headX -= 10;
- checkBoundaries();
- eat();
+head.x -= 10;
     break;
   case RIGHT:
-headX +=10;
- checkBoundaries();
- eat();
+head.x +=10;
     break;
   }
-
+checkBoundaries();
 }
 
 void checkBoundaries() {
  //If the snake leaves the frame, make it reappear on the other side
- if(headX>500){
-  headX=0; 
+ if(head.x>500){
+  head.x=0; 
  }
- if(headX<0){
-  headX=500; 
+ if(head.x<0){
+  head.x=500; 
  }
- if(headY>500){
-  headY=0; 
+ if(head.y>500){
+  head.y=0; 
  }
- if(headY<0){
-  headY=500; 
+ if(head.y<0){
+  head.y=500; 
  }
 }
 
@@ -176,10 +181,11 @@ void checkBoundaries() {
 
 void eat() {
   //When the snake eats the food, its tail should grow and more food appear
-if(headX==foodX){
-  if(headY==foodY){
+if(head.x==foodX){
+  if(head.y==foodY){
   dropFood();
   eaten+=1;
+  tail.add( new Segment(head.x, head.y));
   }
 }
 }
